@@ -4,6 +4,8 @@ const {
   createPatient,
   getAllPatients,
   getPatientsByDoctor,
+  updatePatient,
+  deletePatient,
 } = require("../controllers/patientController");
 
 const protect = require("../middleware/authMiddleware");
@@ -26,6 +28,22 @@ router.get("/patients", getAllPatients);
 router.get(
   "/doctors/:doctorId/patients",
   getPatientsByDoctor
+);
+
+// Update patient - Admin only
+router.put(
+  "/patients/:id",
+  protect,
+  authorize("admin"),
+  updatePatient
+);
+
+// Delete patient - Admin only
+router.delete(
+  "/patients/:id",
+  protect,
+  authorize("admin"),
+  deletePatient
 );
 
 module.exports = router;

@@ -22,15 +22,22 @@ router.post(
 );
 
 // Get all patients
-router.get("/patients", getAllPatients);
+router.get(
+  "/patients",
+  protect,
+  authorize("admin"),
+  getAllPatients
+);
 
 // Get patients by doctor
 router.get(
   "/doctors/:doctorId/patients",
+  protect,
+  authorize("admin"),
   getPatientsByDoctor
 );
 
-// Update patient - Admin only
+// Update patient
 router.put(
   "/patients/:id",
   protect,
@@ -38,7 +45,7 @@ router.put(
   updatePatient
 );
 
-// Delete patient - Admin only
+// Delete patient
 router.delete(
   "/patients/:id",
   protect,

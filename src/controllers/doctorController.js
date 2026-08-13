@@ -8,7 +8,7 @@ const createDoctor = async (req, res) => {
       email,
       phone,
       specialization,
-      department,
+      hospital,
       experience,
       qualification,
       consultationFee,
@@ -16,11 +16,11 @@ const createDoctor = async (req, res) => {
       image,
     } = req.body;
 
-    if (!name || !email || !specialization || !department) {
+    if (!name || !email || !specialization || !hospital) {
       return res.status(400).json({
         success: false,
         message:
-          "Name, email, specialization and department are required",
+          "Name, email, specialization and hospital are required",
       });
     }
 
@@ -38,7 +38,7 @@ const createDoctor = async (req, res) => {
       email,
       phone,
       specialization,
-      department,
+      hospital,
       experience,
       qualification,
       consultationFee,
@@ -67,7 +67,7 @@ const getAllDoctors = async (req, res) => {
     const {
       search,
       specialization,
-      department,
+      hospital,
       page = 1,
       limit = 10,
     } = req.query;
@@ -76,7 +76,7 @@ const getAllDoctors = async (req, res) => {
       isActive: true,
     };
 
-    // Search by name, email or phone
+    // Search by name, email, phone or hospital
     if (search) {
       query.$or = [
         {
@@ -97,6 +97,12 @@ const getAllDoctors = async (req, res) => {
             $options: "i",
           },
         },
+        {
+          hospital: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
@@ -108,21 +114,31 @@ const getAllDoctors = async (req, res) => {
       };
     }
 
-    // Filter by department
-    if (department) {
-      query.department = {
-        $regex: department,
+    // Filter by hospital
+    if (hospital) {
+      query.hospital = {
+        $regex: hospital,
         $options: "i",
       };
     }
 
     // Pagination
-    const currentPage = Math.max(parseInt(page) || 1, 1);
-    const itemsPerPage = Math.max(parseInt(limit) || 10, 1);
-    const skip = (currentPage - 1) * itemsPerPage;
+    const currentPage = Math.max(
+      parseInt(page) || 1,
+      1
+    );
+
+    const itemsPerPage = Math.max(
+      parseInt(limit) || 10,
+      1
+    );
+
+    const skip =
+      (currentPage - 1) * itemsPerPage;
 
     // Total doctors
-    const totalDoctors = await Doctor.countDocuments(query);
+    const totalDoctors =
+      await Doctor.countDocuments(query);
 
     // Get doctors
     const doctors = await Doctor.find(query)
@@ -142,13 +158,18 @@ const getAllDoctors = async (req, res) => {
         limit: itemsPerPage,
         totalDoctors,
         totalPages,
-        hasNextPage: currentPage < totalPages,
-        hasPreviousPage: currentPage > 1,
+        hasNextPage:
+          currentPage < totalPages,
+        hasPreviousPage:
+          currentPage > 1,
       },
       doctors,
     });
   } catch (error) {
-    console.error("Get doctors error:", error);
+    console.error(
+      "Get doctors error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -177,7 +198,10 @@ const getDoctorById = async (req, res) => {
       doctor,
     });
   } catch (error) {
-    console.error("Get doctor error:", error);
+    console.error(
+      "Get doctor error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -196,7 +220,7 @@ const updateDoctor = async (req, res) => {
       "email",
       "phone",
       "specialization",
-      "department",
+      "hospital",
       "experience",
       "qualification",
       "consultationFee",
@@ -220,27 +244,30 @@ const updateDoctor = async (req, res) => {
     }
 
     if (updates.email) {
-      const existingDoctor = await Doctor.findOne({
-        email: updates.email,
-        _id: { $ne: id },
-      });
+      const existingDoctor =
+        await Doctor.findOne({
+          email: updates.email,
+          _id: { $ne: id },
+        });
 
       if (existingDoctor) {
         return res.status(409).json({
           success: false,
-          message: "Doctor with this email already exists",
+          message:
+            "Doctor with this email already exists",
         });
       }
     }
 
-    const doctor = await Doctor.findByIdAndUpdate(
-      id,
-      updates,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const doctor =
+      await Doctor.findByIdAndUpdate(
+        id,
+        updates,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
     if (!doctor) {
       return res.status(404).json({
@@ -255,7 +282,10 @@ const updateDoctor = async (req, res) => {
       doctor,
     });
   } catch (error) {
-    console.error("Update doctor error:", error);
+    console.error(
+      "Update doctor error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -269,14 +299,15 @@ const deactivateDoctor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doctor = await Doctor.findByIdAndUpdate(
-      id,
-      { isActive: false },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const doctor =
+      await Doctor.findByIdAndUpdate(
+        id,
+        { isActive: false },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
     if (!doctor) {
       return res.status(404).json({
@@ -287,11 +318,15 @@ const deactivateDoctor = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Doctor deactivated successfully",
+      message:
+        "Doctor deactivated successfully",
       doctor,
     });
   } catch (error) {
-    console.error("Deactivate doctor error:", error);
+    console.error(
+      "Deactivate doctor error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -300,7 +335,6 @@ const deactivateDoctor = async (req, res) => {
   }
 };
 
-// Export all controllers
 module.exports = {
   createDoctor,
   getAllDoctors,

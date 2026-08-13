@@ -27,11 +27,11 @@ const doctorSchema = new mongoose.Schema(
       trim: true,
     },
 
-    department: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+hospital: {
+  type: String,
+  required: true,
+  trim: true,
+},
 
     experience: {
       type: Number,

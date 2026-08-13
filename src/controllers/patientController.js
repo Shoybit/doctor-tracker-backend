@@ -146,7 +146,7 @@ const getAllPatients = async (req, res) => {
 
     // Get patients
     const patients = await Patient.find(query)
-      .populate("doctor", "name specialization department")
+      .populate("doctor", "name specialization hospital")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(itemsPerPage);
@@ -201,7 +201,7 @@ const getPatientsByDoctor = async (req, res) => {
     const patients = await Patient.find({
       doctor: doctorId,
     })
-      .populate("doctor", "name specialization department")
+      .populate("doctor", "name specialization hospital")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -270,7 +270,7 @@ const updatePatient = async (req, res) => {
       }
     ).populate(
       "doctor",
-      "name specialization department"
+      "name specialization hospital"
     );
 
     if (!patient) {

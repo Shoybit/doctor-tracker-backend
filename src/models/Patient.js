@@ -56,6 +56,11 @@ const patientSchema = new mongoose.Schema(
 patientSchema.index({ condition: 1 });
 patientSchema.index({ doctor: 1, registeredAt: -1 });
 
+patientSchema.index({ name: 1 });
+patientSchema.index({ email: 1 });
+patientSchema.index({ phone: 1 });
+patientSchema.index({ registeredAt: -1 });
+
 const Patient = mongoose.model("Patient", patientSchema);
 
 module.exports = Patient;

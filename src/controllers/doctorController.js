@@ -61,16 +61,90 @@ const createDoctor = async (req, res) => {
   }
 };
 
-// Get All Doctors
+// Get All Doctors with Search, Filter & Pagination
 const getAllDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find({ isActive: true }).sort({
-      createdAt: -1,
-    });
+    const {
+      search,
+      specialization,
+      department,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const query = {
+      isActive: true,
+    };
+
+    // Search by name, email or phone
+    if (search) {
+      query.$or = [
+        {
+          name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    // Filter by specialization
+    if (specialization) {
+      query.specialization = {
+        $regex: specialization,
+        $options: "i",
+      };
+    }
+
+    // Filter by department
+    if (department) {
+      query.department = {
+        $regex: department,
+        $options: "i",
+      };
+    }
+
+    // Pagination
+    const currentPage = Math.max(parseInt(page) || 1, 1);
+    const itemsPerPage = Math.max(parseInt(limit) || 10, 1);
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    // Total doctors
+    const totalDoctors = await Doctor.countDocuments(query);
+
+    // Get doctors
+    const doctors = await Doctor.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    const totalPages = Math.ceil(
+      totalDoctors / itemsPerPage
+    );
 
     return res.status(200).json({
       success: true,
       count: doctors.length,
+      pagination: {
+        currentPage,
+        limit: itemsPerPage,
+        totalDoctors,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1,
+      },
       doctors,
     });
   } catch (error) {

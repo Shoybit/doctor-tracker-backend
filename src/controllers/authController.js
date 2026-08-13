@@ -157,8 +157,42 @@ const getCurrentUser = async (req, res) => {
     });
   }
 };
+
+const logoutUser = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+const adminTest = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "Admin access granted",
+    user: req.user,
+  });
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getCurrentUser,
+  logoutUser,
+  adminTest,
 };

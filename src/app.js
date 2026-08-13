@@ -8,8 +8,6 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const app = express();
 
 // CORS
-const cors = require("cors");
-
 app.use(
   cors({
     origin: [

@@ -1,0 +1,10 @@
+{
+  "name": "doctor-tracker-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Doctor Tracker",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  }
+}

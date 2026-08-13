@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const patientRoutes = require("./routes/patientRoutes");
-
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const app = express();
 
 // CORS
@@ -33,5 +33,6 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api", patientRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 module.exports = app;

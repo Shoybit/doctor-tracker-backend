@@ -2,6 +2,8 @@ const express = require("express");
 
 const {
   createPatient,
+  getAllPatients,
+  getPatientsByDoctor,
 } = require("../controllers/patientController");
 
 const protect = require("../middleware/authMiddleware");
@@ -15,6 +17,15 @@ router.post(
   protect,
   authorize("admin"),
   createPatient
+);
+
+// Get all patients
+router.get("/patients", getAllPatients);
+
+// Get patients by doctor
+router.get(
+  "/doctors/:doctorId/patients",
+  getPatientsByDoctor
 );
 
 module.exports = router;

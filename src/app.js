@@ -8,9 +8,14 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const app = express();
 
 // CORS
+const cors = require("cors");
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://doctor-tracke-8qptzwyk-shoyaib-s-projects.vercel.app",
+    ],
     credentials: true,
   })
 );

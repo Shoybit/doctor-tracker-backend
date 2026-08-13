@@ -4,6 +4,26 @@ const Patient = require("../models/Patient");
 // Get Dashboard Analytics
 const getDashboardStats = async (req, res) => {
   try {
+    // Get selected range
+    const { range = "week" } = req.query;
+
+    // Calculate date range
+    const now = new Date();
+    const startDate = new Date();
+
+    if (range === "week") {
+      startDate.setDate(now.getDate() - 6);
+    } else if (range === "month") {
+      startDate.setDate(now.getDate() - 29);
+    } else if (range === "year") {
+      startDate.setFullYear(now.getFullYear() - 1);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range. Use week, month, or year",
+      });
+    }
+
     // Total doctors
     const totalDoctors = await Doctor.countDocuments();
 
@@ -53,6 +73,14 @@ const getDashboardStats = async (req, res) => {
     // Patients by registration date
     const patientsByDate = await Patient.aggregate([
       {
+        $match: {
+          registeredAt: {
+            $gte: startDate,
+            $lte: now,
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             $dateToString: {
@@ -81,6 +109,7 @@ const getDashboardStats = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      range,
       stats: {
         totalDoctors,
         totalPatients,

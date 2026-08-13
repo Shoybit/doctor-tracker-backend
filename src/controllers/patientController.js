@@ -73,6 +73,7 @@ const createPatient = async (req, res) => {
   }
 };
 // Get All Patients with Search & Filters
+// Get All Patients with Search, Filters & Pagination
 const getAllPatients = async (req, res) => {
   try {
     const {
@@ -80,6 +81,8 @@ const getAllPatients = async (req, res) => {
       condition,
       startDate,
       endDate,
+      page = 1,
+      limit = 10,
     } = req.query;
 
     const query = {};
@@ -133,13 +136,36 @@ const getAllPatients = async (req, res) => {
       }
     }
 
+    // Pagination
+    const currentPage = Math.max(parseInt(page) || 1, 1);
+    const itemsPerPage = Math.max(parseInt(limit) || 10, 1);
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    // Total patients
+    const totalPatients = await Patient.countDocuments(query);
+
+    // Get patients
     const patients = await Patient.find(query)
       .populate("doctor", "name specialization department")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    const totalPages = Math.ceil(
+      totalPatients / itemsPerPage
+    );
 
     return res.status(200).json({
       success: true,
       count: patients.length,
+      pagination: {
+        currentPage,
+        limit: itemsPerPage,
+        totalPatients,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1,
+      },
       patients,
     });
   } catch (error) {
@@ -151,7 +177,6 @@ const getAllPatients = async (req, res) => {
     });
   }
 };
-
 // Get Patients by Doctor
 const getPatientsByDoctor = async (req, res) => {
   try {

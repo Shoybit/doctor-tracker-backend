@@ -72,10 +72,68 @@ const createPatient = async (req, res) => {
     });
   }
 };
-// Get All Patients
+// Get All Patients with Search & Filters
 const getAllPatients = async (req, res) => {
   try {
-    const patients = await Patient.find()
+    const {
+      search,
+      condition,
+      startDate,
+      endDate,
+    } = req.query;
+
+    const query = {};
+
+    // Search by name, email or phone
+    if (search) {
+      query.$or = [
+        {
+          name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    // Filter by condition
+    if (condition) {
+      query.condition = {
+        $regex: condition,
+        $options: "i",
+      };
+    }
+
+    // Filter by registered date
+    if (startDate || endDate) {
+      query.registeredAt = {};
+
+      if (startDate) {
+        query.registeredAt.$gte = new Date(
+          `${startDate}T00:00:00.000Z`
+        );
+      }
+
+      if (endDate) {
+        query.registeredAt.$lte = new Date(
+          `${endDate}T23:59:59.999Z`
+        );
+      }
+    }
+
+    const patients = await Patient.find(query)
       .populate("doctor", "name specialization department")
       .sort({ createdAt: -1 });
 
